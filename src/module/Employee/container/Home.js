@@ -7,6 +7,9 @@ import Link from '@mui/material/Link';
 import Grid from '@mui/material/Grid';
 import Container from '@mui/material/Container';
 import { v4 as uuid } from 'uuid';
+import { onAddData } from '../../../action';
+import Display from '../component/Display';
+import { connect } from 'react-redux';
 
 class Home extends Component {
     constructor() {
@@ -60,6 +63,7 @@ class Home extends Component {
 
     validatePassword = (password) => {
         let formIsValid = this.state.formIsValid;
+        //add regex
         this.setState({
             password: password,
             formIsValid: formIsValid
@@ -69,14 +73,14 @@ class Home extends Component {
 
     handleSubmit = (e) => {
         e.preventDefault();
-        if (
-            this.validateEmail(this.state.email) &&
-            this.validatePassword(this.state.password)
-        ) {
+        if (this.validateEmail(this.state.email) && this.validatePassword(this.state.password)) {
 
-            const unique_id = uuid().slice(0, 8);
+            console.log(uuid());
+            const unique_id = uuid().slice(0, 8);//'fygdyegu-fiufififo'
 
             //send data
+            this.props.onAddItem({ ...this.state, id: unique_id });
+
 
             let email = "";
             let password = "";
@@ -105,9 +109,9 @@ class Home extends Component {
     }
 
     render() {
+        const { employee } = this.props;
         return (
             <>
-
                 <Container component="main" maxWidth="xs" style={{ marginTop: "20px" }}>
 
                     <TextField
@@ -119,7 +123,8 @@ class Home extends Component {
                         onChange={this.handleChange}
                         placeholder="Enter Email"
                     />
-                    <p>{this.state.emailError}</p>
+                    <p style={{ color: "red" }}>{this.state.emailError}</p>
+
                     <TextField
                         name="password"
                         label="Password"
@@ -129,7 +134,7 @@ class Home extends Component {
                         placeholder="Enter Password"
                         id="password"
                     />
-                    <p>{this.state.passwordError}</p>
+                    <p style={{ color: "red" }}>{this.state.passwordError}</p>
 
                     {/* <FormControlLabel
                         control={<Checkbox value="remember" color="primary" />}
@@ -157,13 +162,28 @@ class Home extends Component {
                             </Link>
                         </Grid>
                     </Grid> */}
+
+                    {employee.length ? (<Display employeeData={this.props.employee} />) : ('')}
+
                 </Container>
-
-
             </>
 
         );
     }
 }
 
-export default Home
+
+const mapStateToProps = state => {
+    return {
+        employee: state.employee
+    }
+}
+
+const mapDispatchToProps = dispatch => {
+    return {
+        onAddItem: (item) => dispatch(onAddData(item))
+    }
+}
+
+
+export default connect(mapStateToProps, mapDispatchToProps)(Home);
